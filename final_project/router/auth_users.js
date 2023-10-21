@@ -25,7 +25,15 @@ const userExists = (username) => {
 
 //only registered users can login
 regd_users.post("/login", (req, res) => {
-    
+    const username = req.body.username;
+    const password = req.body.password;
+    if (!username || !password) return res.status(404).send('Error logging in');
+    if (authenticatedUser(username, password)) {
+        let accessToken = jwt.sign({data: password}, 'access', {expiresIn: 60 * 60});
+        req.session.authorization = {accessToken, username};
+        return res.status(200).send(`User ${username} successfully logged in!`);
+    }
+    return res.status(208).send('Invalid login. Check username and password')
 });
 
 // Add a book review
